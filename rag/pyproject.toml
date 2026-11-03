@@ -1,0 +1,10 @@
+[project]
+name = "brainspace-rag"
+version = "2.0.0"
+description = "BrainSpace retrieval-augmented generation worker (standard library only)"
+requires-python = ">=3.10"
+dependencies = []
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"

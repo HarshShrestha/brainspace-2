@@ -1,0 +1,56 @@
+# Production-like local stack: MongoDB + API + web (NGINX) on http://localhost:8080.
+#   JWT_SECRET=$(openssl rand -hex 32) docker compose up --build
+# For real deployments put TLS in front of `web`, use a managed MongoDB and a secret manager.
+
+name: brainspace
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    # Not published: only the API can reach the database.
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      MONGODB_URI: mongodb://mongo:27017/brainspace
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET to at least 32 random characters}
+      CORS_ORIGINS: ${PUBLIC_ORIGIN:-http://localhost:8080}
+      # Exactly one trusted proxy (the web container) sits in front of the API.
+      TRUST_PROXY_HOPS: "1"
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      RAG_ENABLED: ${RAG_ENABLED:-false}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_EMBEDDING_MODEL: ${GEMINI_EMBEDDING_MODEL:-gemini-embedding-001}
+      GEMINI_CHAT_MODEL: ${GEMINI_CHAT_MODEL:-gemini-3.8-flash}
+    # Not published: reachable only through the web proxy.
+
+  web:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      API_UPSTREAM: http://api:8000
+    ports:
+      - "8080:8080"
+
+volumes:
+  mongo-data:

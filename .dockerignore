@@ -1,0 +1,16 @@
+# Build contexts use the repository root; send only what images need.
+**/node_modules
+**/dist
+**/coverage
+**/.env
+**/.env.*
+!**/.env.example
+**/__pycache__
+**/*.py[cod]
+.git
+.github
+docs
+e2e
+rag/tests
+**/test-results
+**/playwright-report

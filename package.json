@@ -1,0 +1,17 @@
+{
+  "name": "brainspace",
+  "version": "2.0.0",
+  "private": true,
+  "description": "BrainSpace monorepo: run package scripts from the root. Each package keeps its own dependencies.",
+  "scripts": {
+    "install:all": "npm ci --prefix backend && npm ci --prefix frontend && npm ci --prefix e2e",
+    "dev:api": "npm run dev --prefix backend",
+    "dev:web": "npm run dev --prefix frontend",
+    "lint": "npm run lint --prefix backend && npm run lint --prefix frontend",
+    "typecheck": "npm run typecheck --prefix backend && npm run typecheck --prefix frontend && npm run typecheck --prefix e2e",
+    "test": "npm test --prefix backend && npm run test:rag && npm test --prefix frontend",
+    "test:rag": "cd rag && PYTHONPATH=tests/stubs python3 -m unittest discover -s tests -t .",
+    "test:e2e": "npm test --prefix e2e",
+    "build": "npm run build --prefix backend && npm run build --prefix frontend"
+  }
+}

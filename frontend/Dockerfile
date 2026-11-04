@@ -12,7 +12,7 @@ ENV VITE_API_URL=${VITE_API_URL}
 RUN npm run build
 
 # Unprivileged NGINX (listens on 8080, runs as a non-root user).
-FROM nginxinc/nginx-unprivileged:1.27-alpine AS runtime
+FROM nginxinc/nginx-unprivileged:1.31-alpine AS runtime
 ENV API_UPSTREAM=http://api:8000
 COPY frontend/nginx/default.conf.template /etc/nginx/templates/default.conf.template
 COPY frontend/nginx/security-headers.conf /etc/nginx/snippets/security-headers.conf
